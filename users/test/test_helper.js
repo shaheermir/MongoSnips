@@ -15,8 +15,12 @@ before((done) => {
 })
 
 beforeEach((done) => {
-  mongoose.connection.collections.users.drop(() => {
-    // console.log('Emptied the database.')
-    done()
+  const { users, comments, blogposts } = mongoose.connection.collections
+  users.drop(() => {
+    comments.drop(() => {
+      blogposts.drop(() => {
+        done()
+      })
+    })
   })
 })
