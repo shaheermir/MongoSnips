@@ -8,20 +8,28 @@ const UserSchema = new Schema({
     type: String,
     required: [true, 'Name is required.'],
     validate: {
-      validator: (name) => name.length > 2,
+      validator: name => name.length > 2,
       message: 'Name must be longer than 2 characters.'
     }
   },
   posts: [PostSchema],
   likes: Number,
-  blogPosts: [{
-    type: Schema.Types.ObjectId,
-    ref: 'blogPost'
-  }]
+  blogPosts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'blogPost'
+    }
+  ]
 })
 
 UserSchema.virtual('postCount').get(function () {
   return this.posts.length
+})
+
+UserSchema.pre('remove', function (next) {
+  const BlogPost = mongoose.model('blogPost')
+  BlogPost.remove({ _id: { $in: this.blogPosts } })
+    .then(() => next())
 })
 
 /* First param is the name of the colletion
